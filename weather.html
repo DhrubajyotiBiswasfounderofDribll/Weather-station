@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>DHT11 LIVE DASHBOARD</title>
+<meta charset="UTF-8">
+
+<style>
+html{
+    background: linear-gradient(45deg, #04000ceb, #1a0437);
+}
+
+body{
+    color:white;
+    text-align:center;
+    font-family:Segoe UI, sans-serif;
+}
+
+h1{ font-size:32px; margin-top:30px; }
+
+.btn{
+    background:#00e4ff;
+    padding:12px 28px;
+    border:none;
+    border-radius:6px;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:15px;
+}
+
+.card{
+    margin:40px auto;
+    width:350px;
+    padding:25px;
+    background:#0a1a24;
+    border-radius:18px;
+    box-shadow:0 0 20px rgba(0,255,255,0.4);
+}
+.value{ font-size:40px; font-weight:700; margin-top:6px; }
+
+canvas{
+    background:#0a1a24;
+    width: 50% !important;
+    height: auto !important;
+    margin-top: 35px;
+    display: flex !important;
+    padding: 2vw;
+    border-radius: 18px;
+    box-shadow:0 0 20px rgba(0,255,255,0.4);
+}
+
+.wrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3vw;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+
+<body>
+
+<h1>Weather Station</h1>
+<button class="btn" onclick="connect()">🔗 Connect Arduino</button>
+
+<div class="wrapper">
+    <div class="card">
+        <h3>🌡 Temperature</h3>
+        <p id="temp" class="value">-- °C</p>
+
+        <h3>💧 Humidity</h3>
+        <p id="hum" class="value">-- %</p>
+    </div>
+    <canvas id="dhtChart"></canvas>
+</div>
+
+
+
+
+<script>
+let port, reader;
+let buffer = ""; // fix: hold split incoming data
+
+// ===================== CHART =========================
+let ctx = document.getElementById("dhtChart").getContext("2d");
+let chart = new Chart(ctx, {
+    type: "line",
+    data: {
+        labels: [],
+        datasets: [
+            { label: "Temperature (°C)", data: [], borderColor: "#00e4ff", borderWidth: 2 },
+            { label: "Humidity (%)", data: [], borderColor: "#ff2e7a", borderWidth: 2 }
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: { y: { min: 0, max: 100 } }
+    }
+});
+
+// ================= CONNECT ==========================
+async function connect() {
+    port = await navigator.serial.requestPort();
+    await port.open({ baudRate: 9600 });
+    reader = port.readable.getReader();
+    readSerialLoop();
+}
+
+// ================= FIXED READER ======================
+async function readSerialLoop() {
+    let decoder = new TextDecoder();
+
+    while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value);
+
+        let lines = buffer.split("\n");
+        buffer = lines.pop();  // keep incomplete part
+
+        for (let line of lines) {
+            line = line.trim();
+            if (!line.includes(",")) continue;
+
+            let [t, h] = line.split(",").map(Number);
+
+            if (!isNaN(t) && !isNaN(h)) {
+                document.getElementById("temp").innerHTML = t.toFixed(1) + " °C";
+                document.getElementById("hum").innerHTML  = h.toFixed(1) + " %";
+
+                chart.data.labels.push("");
+                chart.data.datasets[0].data.push(t);
+                chart.data.datasets[1].data.push(h);
+                chart.update();
+            }
+        }
+    }
+}
+</script>
+
+
+</body>
+</html>
