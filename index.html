@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Weather Station —  Pro Dashboard</title>
+<title>Weather Station — Responsive Pro Dashboard</title>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -335,10 +335,10 @@ async function connectSerial(){
         pushToChart(weatherChart,dhtT,dhtH,pres);
         pushToChart(rainChart,rain);
 
-        if (rain > 1) 
-    		rainStatusEl.innerText = "Raining 🌧️";
-		else 
+        if (rain == 1) 
     		rainStatusEl.innerText = "No Rain ☀️";
+	else 
+    		rainStatusEl.innerText = "Raining 🌧️";
 
 
         updateGauge(pres);
@@ -389,4 +389,3 @@ clearBtn.addEventListener('click',()=>{
 </script>
 </body>
 </html>
-
