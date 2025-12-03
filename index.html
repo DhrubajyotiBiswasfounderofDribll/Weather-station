@@ -1,148 +1,391 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Weather Station Dashboard</title>
-<meta charset="UTF-8">
+<meta charset="utf-8" />
+<title>Weather Station —  Pro Dashboard</title>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-html{
-    background: linear-gradient(45deg, #04000ceb, #1a0437);
+:root{
+  --bg1: #04000ceb;
+  --bg2: #1a0437;
+  --card: #0a1a24;
+  --accent: #00e4ff;
+  --muted: rgba(255,255,255,0.75);
 }
-
-body{
-    color:white;
-    text-align:center;
-    font-family:Segoe UI, sans-serif;
+html,body{
+  height:100%;
+  margin:0;
+  padding:0;
+  background: linear-gradient(45deg, var(--bg1), var(--bg2));
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  color: #fff;
+  box-sizing:border-box;
 }
-
-h1{ font-size:32px; margin-top:30px; }
-
+.header{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  padding:18px 12px 8px 12px;
+}
+.title{
+  font-size:28px;
+  font-weight:700;
+  margin:0;
+  letter-spacing:0.2px;
+}
+.controls{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
 .btn{
-    background:#00e4ff;
-    padding:12px 28px;
-    border:none;
-    border-radius:6px;
-    font-size:18px;
-    font-weight:bold;
-    cursor:pointer;
-    margin-top:15px;
+  background:var(--accent);
+  color:#001;
+  border:none;
+  padding:10px 16px;
+  border-radius:10px;
+  font-weight:750;
+  cursor:pointer;
+  box-shadow:0 8px 24px rgba(0,228,255,0.08);
 }
-
+.btn:disabled{ opacity:0.6; cursor:not-allowed; }
+.main{
+  width:95%;
+  max-width:1400px;
+  margin:16px auto 34px auto;
+  display:grid;
+  grid-template-columns: 320px 1fr 320px;
+  gap:20px;
+  align-items:start;
+  min-height: calc(100vh - 180px);
+}
+.col-left{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+.col-center{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+.col-right{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  align-items:center;
+}
 .card{
-    margin:40px auto;
-    width:350px;
-    padding:25px;
-    background:#0a1a24;
-    border-radius:18px;
-    box-shadow:0 0 20px rgba(0,255,255,0.4);
+  background: var(--card);
+  border-radius:14px;
+  padding:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.35);
+  min-height:100px;
 }
-.value{ font-size:40px; font-weight:700; margin-top:6px; }
-
-canvas{
-    background:#0a1a24;
-    width: 50% !important;
-    height: auto !important;
-    margin-top: 35px;
-    display: flex !important;
-    padding: 2vw;
-    border-radius: 18px;
-    box-shadow:0 0 20px rgba(0,255,255,0.4);
+.card h3{ margin:0 0 10px 0; font-size:16px; font-weight:700; }
+.value{
+  font-size:34px;
+  font-weight:800;
+  margin:6px 0 8px 0;
+  color:#e8faff;
 }
-
-.wrapper{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 3vw;
+.small{ font-size:13px; opacity:0.85; }
+canvas{ background:var(--card); border-radius:10px; padding:8px; box-shadow:0 6px 18px rgba(0,0,0,0.3); }
+.gauge-wrap{ display:flex; justify-content:center; align-items:center; width:100%; }
+.gauge{
+  width:240px;
+  height:240px;
+  position:relative;
 }
+.gauge svg{ width:100%; height:100%; transform:rotate(-90deg); }
+.gauge .center{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; pointer-events:none;
+}
+.gauge .center .big{ font-size:28px; font-weight:800; color:#bff7ff; }
+.gauge .center .small{ font-size:12px; opacity:0.85; }
+.ring-bg{ stroke:#06262c; stroke-width:26; fill:none; stroke-linecap:round; filter: drop-shadow(0 0 12px rgba(0,228,255,0.18)); }
+.ring-fg{ stroke:var(--accent); stroke-width:18; fill:none; stroke-linecap:round; filter: drop-shadow(0 0 18px rgba(0,228,255,0.45)); }
+.note{ text-align:center; font-size:13px; opacity:0.8; margin-top:10px; }
+@media (max-width:1100px){
+  .main{ grid-template-columns: 360px 1fr; grid-auto-rows: auto; }
+  .col-right{ order:2; align-items:flex-start; }
+}
+@media (max-width:720px){
+  .main{ grid-template-columns: 1fr; gap:14px; padding:6px; min-height:auto; }
+  .col-left, .col-center, .col-right{ align-items:center; }
+  .card{ width:92%; }
+  canvas{ height:220px !important; }
+  .gauge{ width:200px; height:200px; }
+  .value{ font-size:28px; }
+}
+.page-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.card canvas { height: 268px !important; width: 100% !important; }
+#pressurecard{ width: 13vw; height: 8vw; }
 </style>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
-
 <body>
+<div class="page-wrap">
+<header class="header">
+  <h1 class="title">Weather Station — Pro Dashboard</h1>
+  <div class="controls">
+    <button id="connectBtn" class="btn">🔌 Connect Arduino</button>
+    <button id="exportBtn" class="btn" disabled>📥 Export CSV</button>
+    <button id="clearBtn" class="btn" disabled>🗑️ Clear Data</button>
+  </div>
+</header>
 
-<h1>Weather Station</h1>
-<button class="btn" onclick="connect()">🔗 Connect Arduino</button>
-
-<div class="wrapper">
+<main class="main" role="main">
+  <!-- LEFT: values -->
+  <section class="col-left">
     <div class="card">
-        <h3>🌡 Temperature</h3>
-        <p id="temp" class="value">-- °C</p>
-
-        <h3>💧 Humidity</h3>
-        <p id="hum" class="value">-- %</p>
+      <h3>🌡Temperature</h3>
+      <div id="dhtTemp" class="value">-- °C</div>
+      <div class="small">DHT11 sensor</div>
     </div>
-    <canvas id="dhtChart"></canvas>
+
+    <div class="card">
+      <h3>💧Humidity</h3>
+      <div id="dhtHum" class="value">-- %</div>
+      <div class="small">Relative humidity</div>
+    </div>
+
+    <div class="card">
+      <h3>⛰ Altitude</h3>
+      <div id="altitude" class="value">-- m</div>
+      <div class="small">Calculated from pressure</div>
+    </div>
+
+    <!-- Rain status -->
+    <div class="card">
+      <h3>🌧 Rain Status</h3>
+      <div id="rainStatus" class="value">--</div>
+      <div class="small">Based on Rain Sensor</div>
+    </div>
+  </section>
+
+  <!-- CENTER: charts -->
+  <section class="col-center">
+    <div class="card">
+      <h3>📈 Temp, Pressure & Humidity</h3>
+      <canvas id="weatherChart" height="220"></canvas>
+    </div>
+
+    <div class="card">
+      <h3>📈 Rain Sensor</h3>
+      <canvas id="rainChart" height="220"></canvas>
+    </div>
+  </section>
+
+  <!-- RIGHT: gauge -->
+  <section class="col-right">
+    <div class="card" id="pressurecard">
+      <h3>🔵 Pressure</h3>
+      <div id="pressure" class="value">-- hPa</div>
+      <div class="small">Sea-level adjusted</div>
+    </div>
+
+    <div class="card">
+      <h3>🔮 Neon Pressure Gauge</h3>
+      <div class="gauge-wrap">
+        <div class="gauge" aria-hidden="true">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+            <circle class="ring-bg" cx="50" cy="50" r="40"></circle>
+            <circle id="ringFG" class="ring-fg" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
+          </svg>
+          <div class="center">
+            <div id="gaugeValue" class="big">-- hPa</div>
+            <div class="small">Atmospheric Pressure</div>
+          </div>
+        </div>
+      </div>
+      <div class="small-note">Gauge range: <strong id="gaugeRange">900 — 1100 hPa</strong></div>
+    </div>
+  </section>
+</main>
+
+<div class="note">Make sure Arduino Serial Monitor is closed. Works in Chrome / Edge (Web Serial API).</div>
 </div>
 
-
-
-
 <script>
-let port, reader;
-let buffer = ""; // fix: hold split incoming data
+const MAX_POINTS = 60;
+const PRESS_MIN = 900;
+const PRESS_MAX = 1100;
 
-// ===================== CHART =========================
-let ctx = document.getElementById("dhtChart").getContext("2d");
-let chart = new Chart(ctx, {
-    type: "line",
-    data: {
-        labels: [],
-        datasets: [
-            { label: "Temperature (°C)", data: [], borderColor: "#00e4ff", borderWidth: 2 },
-            { label: "Humidity (%)", data: [], borderColor: "#ff2e7a", borderWidth: 2 }
-        ]
+let port=null, reader=null, readBuffer='', running=false;
+const readings=[];
+
+/* Charts */
+const weatherCtx = document.getElementById('weatherChart').getContext('2d');
+const weatherChart = new Chart(weatherCtx,{
+  type:'line',
+  data:{
+    labels:[],
+    datasets:[
+      { label:'Temperature (°C)', data:[], borderColor:'#00e4ff', backgroundColor:'rgba(0,228,255,0.06)', yAxisID:'yT', tension:0.25, pointRadius:2 },
+      { label:'Humidity (%)', data:[], borderColor:'#ff78a6', backgroundColor:'rgba(255,120,166,0.03)', yAxisID:'yH', tension:0.25, pointRadius:2 },
+      { label:'Pressure (hPa)', data:[], borderColor:'#ffd24d', backgroundColor:'rgba(255,210,77,0.03)', yAxisID:'yP', tension:0.25, pointRadius:2 }
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{display:true}},
+    scales:{
+      x:{ display:false },
+      yT:{ type:'linear', position:'left', min:-5, max:50, title:{display:true,text:'°C'} },
+      yH:{ type:'linear', position:'right', min:0, max:100, grid:{drawOnChartArea:false}, title:{display:true,text:'%'} },
+      yP:{ type:'linear', position:'right', min:PRESS_MIN, max:PRESS_MAX, grid:{drawOnChartArea:false}, title:{display:true,text:'hPa'} }
     },
-    options: {
-        responsive: true,
-        scales: { y: { min: 0, max: 100 } }
-    }
+    animation:false
+  }
 });
 
-// ================= CONNECT ==========================
-async function connect() {
-    port = await navigator.serial.requestPort();
-    await port.open({ baudRate: 9600 });
-    reader = port.readable.getReader();
-    readSerialLoop();
+const rainCtx = document.getElementById('rainChart').getContext('2d');
+const rainChart = new Chart(rainCtx,{
+  type:'line',
+  data:{ labels:[], datasets:[{label:'Rain Sensor', data:[], borderColor:'#7df2a6', backgroundColor:'rgba(125,242,166,0.04)', tension:0.25, pointRadius:2 }] },
+  options:{ responsive:true, plugins:{legend:{display:true}}, scales:{x:{display:false}, y:{min:0,max:1023}} }
+});
+
+/* DOM refs */
+const connectBtn=document.getElementById('connectBtn');
+const exportBtn=document.getElementById('exportBtn');
+const clearBtn=document.getElementById('clearBtn');
+const dhtTempEl=document.getElementById('dhtTemp');
+const dhtHumEl=document.getElementById('dhtHum');
+const pressureEl=document.getElementById('pressure');
+const altitudeEl=document.getElementById('altitude');
+const rainStatusEl=document.getElementById('rainStatus');
+const ringFG=document.getElementById('ringFG');
+const gaugeValueEl=document.getElementById('gaugeValue');
+document.getElementById('gaugeRange').innerText = `${PRESS_MIN} — ${PRESS_MAX} hPa`;
+
+function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
+
+function pushToChart(chart,...vals){
+  chart.data.labels.push('');
+  chart.data.datasets.forEach((ds,i)=>ds.data.push(vals[i]));
+  if(chart.data.labels.length>MAX_POINTS){
+    chart.data.labels.shift();
+    chart.data.datasets.forEach(ds=>ds.data.shift());
+  }
+  chart.update();
 }
 
-// ================= FIXED READER ======================
-async function readSerialLoop() {
-    let decoder = new TextDecoder();
+function updateGauge(pressure){
+  const p=clamp(pressure,PRESS_MIN,PRESS_MAX);
+  const pct=(p-PRESS_MIN)/(PRESS_MAX-PRESS_MIN);
+  const circumference=2*Math.PI*40;
+  const dash=circumference*pct;
+  const offset=circumference-dash;
+  ringFG.setAttribute('stroke-dasharray',`${circumference}`);
+  ringFG.style.transition='stroke-dashoffset 600ms ease-out';
+  ringFG.style.strokeDashoffset=offset;
+  gaugeValueEl.innerText=`${pressure.toFixed(1)} hPa`;
+}
 
-    while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
+async function connectSerial(){
+  try{
+    port=await navigator.serial.requestPort();
+    await port.open({baudRate:9600});
+    connectBtn.innerText='⚡ Connected'; connectBtn.disabled=true;
+    exportBtn.disabled=false; clearBtn.disabled=false;
+    running=true;
 
-        buffer += decoder.decode(value);
+    reader=port.readable.getReader();
+    const decoder=new TextDecoder();
+    while(running){
+      const {value, done } = await reader.read();
+      if(done) break;
+      if(!value) continue;
+      readBuffer+=decoder.decode(value);
+      const lines=readBuffer.split(/\r?\n/);
+      readBuffer=lines.pop();
+      for(const raw of lines){
+        const line=raw.trim();
+        if(!line) continue;
+        const parts=line.split(',').map(s=>s.trim());
+        if(parts.length<6) continue; // dhtT,dhtH,bmpT,pres,alt,rain
+        const dhtT=parseFloat(parts[0]);
+        const dhtH=parseFloat(parts[1]);
+        const pres=parseFloat(parts[3]);
+        const alt=parseFloat(parts[4]);
+        const rain=parseFloat(parts[5]);
+        if([dhtT,dhtH,pres,alt,rain].some(v=>Number.isNaN(v))) continue;
 
-        let lines = buffer.split("\n");
-        buffer = lines.pop();  // keep incomplete part
+        const ts=new Date().toISOString();
+        readings.push({ts,dhtT,dhtH,pres,alt,rain});
+        if(readings.length>10000) readings.shift();
 
-        for (let line of lines) {
-            line = line.trim();
-            if (!line.includes(",")) continue;
+        dhtTempEl.innerText=dhtT.toFixed(1)+' °C';
+        dhtHumEl.innerText=dhtH.toFixed(1)+' %';
+        pressureEl.innerText=pres.toFixed(2)+' hPa';
+        altitudeEl.innerText=alt.toFixed(2)+' m';
 
-            let [t, h] = line.split(",").map(Number);
+        pushToChart(weatherChart,dhtT,dhtH,pres);
+        pushToChart(rainChart,rain);
 
-            if (!isNaN(t) && !isNaN(h)) {
-                document.getElementById("temp").innerHTML = t.toFixed(1) + " °C";
-                document.getElementById("hum").innerHTML  = h.toFixed(1) + " %";
+        if (rain > 1) 
+    		rainStatusEl.innerText = "Raining 🌧️";
+	else 
+    		rainStatusEl.innerText = "No Rain ☀️";
 
-                chart.data.labels.push("");
-                chart.data.datasets[0].data.push(t);
-                chart.data.datasets[1].data.push(h);
-                chart.update();
-            }
-        }
+
+        updateGauge(pres);
+      }
     }
+  }catch(err){ console.error(err); alert('Serial error: '+err);}
+  finally{
+    if(reader){ try{await reader.cancel();}catch{} reader.releaseLock(); }
+    if(port){ try{await port.close();}catch{} }
+    connectBtn.innerText='🔌 Connect Arduino'; connectBtn.disabled=false;
+    exportBtn.disabled=readings.length===0; clearBtn.disabled=readings.length===0;
+    running=false;
+  }
 }
+
+connectBtn.addEventListener('click', ()=>{
+  if(!('serial' in navigator)){ alert('Web Serial API not supported. Use latest Chrome/Edge.'); return; }
+  connectSerial();
+});
+
+exportBtn.addEventListener('click',()=>{
+  if(readings.length===0){ alert("No data to export."); return; }
+  const rows=[['timestamp','temp_C','humidity_pct','pressure_hPa','altitude_m','rain']];
+  for(const r of readings) rows.push([r.ts,r.dhtT,r.dhtH,r.pres,r.alt,r.rain]);
+  const csv=new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'});
+  const url=URL.createObjectURL(csv);
+  const a=document.createElement('a');
+  a.href=url; a.download=`weather_readings_${new Date().toISOString().replace(/[:.]/g,'-')}.csv`;
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+
+clearBtn.addEventListener('click',()=>{
+  if(!confirm('Clear stored readings?')) return;
+  readings.length=0;
+  weatherChart.data.labels=[]; weatherChart.data.datasets.forEach(ds=>ds.data=[]); weatherChart.update();
+  rainChart.data.labels=[]; rainChart.data.datasets.forEach(ds=>ds.data=[]); rainChart.update();
+  dhtTempEl.innerText='-- °C'; dhtHumEl.innerText='-- %';
+  pressureEl.innerText='-- hPa'; altitudeEl.innerText='-- m';
+  rainStatusEl.innerText='--'; gaugeValueEl.innerText='-- hPa';
+  exportBtn.disabled=true; clearBtn.disabled=true;
+});
+
+(function initRing(){
+  const circumference=2*Math.PI*40;
+  ringFG.setAttribute('stroke-dasharray',`${circumference}`);
+  ringFG.style.strokeDashoffset=circumference;
+})();
 </script>
-
-
 </body>
 </html>
-
