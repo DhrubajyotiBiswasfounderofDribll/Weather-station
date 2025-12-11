@@ -111,7 +111,7 @@ canvas{ background:var(--card); border-radius:10px; padding:8px; box-shadow:0 6p
 .gauge .center .big{ font-size:28px; font-weight:800; color:#bff7ff; }
 .gauge .center .small{ font-size:12px; opacity:0.85; }
 .ring-bg{ stroke:#06262c; stroke-width:26; fill:none; stroke-linecap:round; filter: drop-shadow(0 0 12px rgba(0,228,255,0.18)); }
-.ring-fg{ stroke:var(--accent); stroke-width:18; fill:none; stroke-linecap:round; filter: drop-shadow(0 0 18px rgba(0,228,255,0.45)); }
+.ring-fg{ stroke:var(--accent); stroke-width:18; fill:none; stroke-linecap:round; filter: drop-shadow(0 0 18px rgba(0,228,255,0.45)); transition: stroke-dashoffset 600ms ease-out; }
 .note{ text-align:center; font-size:13px; opacity:0.8; margin-top:10px; }
 @media (max-width:1100px){
   .main{ grid-template-columns: 360px 1fr; grid-auto-rows: auto; }
@@ -132,6 +132,13 @@ canvas{ background:var(--card); border-radius:10px; padding:8px; box-shadow:0 6p
 }
 .card canvas { height: 268px !important; width: 100% !important; }
 #pressurecard{ width: 13vw; height: 8vw; }
+/* RED ERROR CARD FOR MISSING SENSOR */
+.error {
+  background-color: #320000 !important;
+  box-shadow: 0 0 20px rgba(255,0,0,0.7) !important;
+  border: 1px solid red;
+  transition: 0.3s ease;
+}
 </style>
 </head>
 <body>
@@ -148,26 +155,25 @@ canvas{ background:var(--card); border-radius:10px; padding:8px; box-shadow:0 6p
 <main class="main" role="main">
   <!-- LEFT: values -->
   <section class="col-left">
-    <div class="card">
+    <div class="card" id="tempCard">
       <h3>🌡Temperature</h3>
       <div id="dhtTemp" class="value">-- °C</div>
       <div class="small">DHT11 sensor</div>
     </div>
 
-    <div class="card">
+    <div class="card" id="humCard">
       <h3>💧Humidity</h3>
       <div id="dhtHum" class="value">-- %</div>
       <div class="small">Relative humidity</div>
     </div>
 
-    <div class="card">
+    <div class="card" id="altitudeCard">
       <h3>⛰ Altitude</h3>
       <div id="altitude" class="value">-- m</div>
       <div class="small">Calculated from pressure</div>
     </div>
 
-    <!-- Rain status -->
-    <div class="card">
+    <div class="card" id="rainCard">
       <h3>🌧 Rain Status</h3>
       <div id="rainStatus" class="value">--</div>
       <div class="small">Based on Rain Sensor</div>
@@ -283,17 +289,17 @@ function pushToChart(chart,...vals){
 }
 
 function updateGauge(pressure){
-  const p=clamp(pressure,PRESS_MIN,PRESS_MAX);
-  const pct=(p-PRESS_MIN)/(PRESS_MAX-PRESS_MIN);
-  const circumference=2*Math.PI*40;
-  const dash=circumference*pct;
-  const offset=circumference-dash;
-  ringFG.setAttribute('stroke-dasharray',`${circumference}`);
-  ringFG.style.transition='stroke-dashoffset 600ms ease-out';
-  ringFG.style.strokeDashoffset=offset;
-  gaugeValueEl.innerText=`${pressure.toFixed(1)} hPa`;
+  const p = clamp(pressure, PRESS_MIN, PRESS_MAX);
+  const pct = (p - PRESS_MIN) / (PRESS_MAX - PRESS_MIN);
+  const circumference = 2 * Math.PI * 40;
+  const dash = circumference * pct;
+  const offset = circumference - dash;
+  ringFG.setAttribute('stroke-dasharray', `${circumference}`);
+  ringFG.style.strokeDashoffset = offset;
+  gaugeValueEl.innerText = `${pressure.toFixed(1)} hPa`;
 }
 
+/* Serial connection */
 async function connectSerial(){
   try{
     port=await navigator.serial.requestPort();
@@ -305,45 +311,79 @@ async function connectSerial(){
     reader=port.readable.getReader();
     const decoder=new TextDecoder();
     while(running){
-      const {value, done } = await reader.read();
-      if(done) break;
-      if(!value) continue;
-      readBuffer+=decoder.decode(value);
-      const lines=readBuffer.split(/\r?\n/);
-      readBuffer=lines.pop();
-      for(const raw of lines){
-        const line=raw.trim();
-        if(!line) continue;
-        const parts=line.split(',').map(s=>s.trim());
-        if(parts.length<6) continue; // dhtT,dhtH,bmpT,pres,alt,rain
-        const dhtT=parseFloat(parts[0]);
-        const dhtH=parseFloat(parts[1]);
-        const pres=parseFloat(parts[3]);
-        const alt=parseFloat(parts[4]);
-        const rain=parseFloat(parts[5]);
-        if([dhtT,dhtH,pres,alt,rain].some(v=>Number.isNaN(v))) continue;
+  const {value, done } = await reader.read();
+  if(done) break;
+  if(!value) continue;
+  readBuffer += decoder.decode(value);
+  const lines = readBuffer.split(/\r?\n/);
+  readBuffer = lines.pop();
+  
+  for(const raw of lines){
+    const line = raw.trim();
+    if(!line) continue;
+    const parts = line.split(',').map(s => s.trim());
+    if(parts.length < 6) continue;
 
-        const ts=new Date().toISOString();
-        readings.push({ts,dhtT,dhtH,pres,alt,rain});
-        if(readings.length>10000) readings.shift();
+    const dhtT = parseFloat(parts[0]);
+    const dhtH = parseFloat(parts[1]);
+    const pres  = parseFloat(parts[3]);
+    const alt  = parseFloat(parts[4]);
+    const rain = parseFloat(parts[5]);
 
-        dhtTempEl.innerText=dhtT.toFixed(1)+' °C';
-        dhtHumEl.innerText=dhtH.toFixed(1)+' %';
-        pressureEl.innerText=pres.toFixed(2)+' hPa';
-        altitudeEl.innerText=alt.toFixed(2)+' m';
+    if([dhtT,dhtH,pres,alt,rain].some(v => Number.isNaN(v))) continue;
 
-        pushToChart(weatherChart,dhtT,dhtH,pres);
-        pushToChart(rainChart,rain);
+    const ts = new Date().toISOString();
+    readings.push({ts,dhtT,dhtH,pres,alt,rain});
+    if(readings.length > 10000) readings.shift();
 
-        if (rain == 1) 
-    		rainStatusEl.innerText = "No Rain ☀️";
-	else 
-    		rainStatusEl.innerText = "Raining 🌧️";
-
-
-        updateGauge(pres);
-      }
+    /* Sensor missing helper */
+    function markMissing(el, cardId){
+        document.getElementById(cardId).classList.add('error');
+        el.innerText = "Sensor Missing";
+        if ("vibrate" in navigator) navigator.vibrate([80,50,80]);
     }
+    function clearMissing(el, cardId){
+        document.getElementById(cardId).classList.remove('error');
+    }
+
+    /* Update sensors */
+    if(dhtT === -1) markMissing(dhtTempEl,'tempCard'); 
+    else { clearMissing(dhtTempEl,'tempCard'); dhtTempEl.innerText = dhtT.toFixed(1)+' °C'; }
+
+    if(dhtH === -1) markMissing(dhtHumEl,'humCard'); 
+    else { clearMissing(dhtHumEl,'humCard'); dhtHumEl.innerText = dhtH.toFixed(1)+' %'; }
+
+    if(pres === -1) { 
+        markMissing(pressureEl,'pressurecard'); 
+        gaugeValueEl.innerText='-- hPa'; 
+        ringFG.style.strokeDashoffset = 2*Math.PI*40;
+    } else { 
+        clearMissing(pressureEl,'pressurecard'); 
+        pressureEl.innerText = pres.toFixed(2)+' hPa'; 
+        updateGauge(pres); 
+    }
+
+    if(alt === -1) markMissing(altitudeEl,'altitudeCard'); 
+    else { clearMissing(altitudeEl,'altitudeCard'); altitudeEl.innerText = alt.toFixed(2)+' m'; }
+
+    if(rain === -1) markMissing(rainStatusEl,'rainCard'); 
+    else { clearMissing(rainStatusEl,'rainCard'); rainStatusEl.innerText = rain == 1 ? "Raining 🌧️" : "No Rain ☀️"; }
+
+    /* Push data to charts - allow missing sensors */
+    pushToChart(
+      weatherChart,
+      dhtT !== -1 ? dhtT : null,
+      dhtH !== -1 ? dhtH : null,
+      pres !== -1 ? pres : null
+    );
+
+    pushToChart(
+      rainChart,
+      rain !== -1 ? rain : null
+    );
+  }
+}
+
   }catch(err){ console.error(err); alert('Serial error: '+err);}
   finally{
     if(reader){ try{await reader.cancel();}catch{} reader.releaseLock(); }
@@ -381,6 +421,7 @@ clearBtn.addEventListener('click',()=>{
   exportBtn.disabled=true; clearBtn.disabled=true;
 });
 
+/* Initialize ring */
 (function initRing(){
   const circumference=2*Math.PI*40;
   ringFG.setAttribute('stroke-dasharray',`${circumference}`);
