@@ -3,10 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <title>Weather Station — Responsive Pro Dashboard</title>
-
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
 :root{
   --bg1: #04000ceb;
@@ -33,19 +31,9 @@ html,body{
   gap:8px;
   padding:18px 12px 8px 12px;
 }
-.title{
-  font-size:28px;
-  font-weight:700;
-  margin:0;
-  letter-spacing:0.2px;
-}
+.title{ font-size:28px; font-weight:700; margin:0; letter-spacing:0.2px; }
 .controls{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  justify-content:center;
-  flex-wrap:wrap;
-  margin-top:8px;
+  display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; margin-top:8px;
 }
 .btn{
   background:var(--accent);
@@ -58,83 +46,22 @@ html,body{
   box-shadow:0 8px 24px rgba(0,228,255,0.08);
 }
 .btn:disabled{ opacity:0.6; cursor:not-allowed; }
-.main{
-  width:95%;
-  max-width:1400px;
-  margin:16px auto 34px auto;
-  display:grid;
-  grid-template-columns: 320px 1fr 320px;
-  gap:20px;
-  align-items:start;
-  min-height: calc(100vh - 180px);
-}
-.col-left{
-  display:flex;
-  flex-direction:column;
-  gap:20px;
-}
-.col-center{
-  display:flex;
-  flex-direction:column;
-  gap:20px;
-}
-.col-right{
-  display:flex;
-  flex-direction:column;
-  gap:20px;
-  align-items:center;
-}
-.card{
-  background: var(--card);
-  border-radius:14px;
-  padding:16px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.35);
-  min-height:100px;
-  transition: background 250ms, box-shadow 250ms, border 250ms;
-}
+.main{ width:95%; max-width:1400px; margin:16px auto 34px auto; display:grid; grid-template-columns: 320px 1fr 360px; gap:20px; align-items:start; min-height: calc(100vh - 180px); }
+.col-left, .col-center, .col-right{ display:flex; flex-direction:column; gap:20px; }
+.col-right{ align-items:center; }
+.card{ background: var(--card); border-radius:14px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,0.35); min-height:100px; transition: background 250ms, box-shadow 250ms, border 250ms; }
 .card h3{ margin:0 0 10px 0; font-size:16px; font-weight:700; }
-.value{
-  font-size:34px;
-  font-weight:800;
-  margin:6px 0 8px 0;
-  color:#e8faff;
-}
+.value{ font-size:34px; font-weight:800; margin:6px 0 8px 0; color:#e8faff; }
 .small{ font-size:13px; opacity:0.85; }
 canvas{ background:var(--card); border-radius:10px; padding:8px; box-shadow:0 6px 18px rgba(0,0,0,0.3); }
 .gauge-wrap{ display:flex; justify-content:center; align-items:center; width:100%; }
-.gauge{
-  width:240px;
-  height:240px;
-  position:relative;
-}
-.gauge svg{ width:100%; height:100%; transform:rotate(-90deg); }
-.gauge .center{
-  position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; pointer-events:none;
-}
-.gauge .center .big{ font-size:28px; font-weight:800; color:#bff7ff; }
-.gauge .center .small{ font-size:12px; opacity:0.85; }
-.ring-bg{ stroke:#06262c; stroke-width:26; fill:none; stroke-linecap:round; filter: drop-shadow(0 0 12px rgba(0,228,255,0.18)); }
-.ring-fg{ stroke:var(--accent); stroke-width:18; fill:none; stroke-linecap:round; filter: drop-shadow(0 0 18px rgba(0,228,255,0.45)); transition: stroke-dashoffset 600ms ease-out; }
-.note{ text-align:center; font-size:13px; opacity:0.8; margin-top:10px; }
-@media (max-width:1100px){
-  .main{ grid-template-columns: 360px 1fr; grid-auto-rows: auto; }
-  .col-right{ order:2; align-items:flex-start; }
-}
-@media (max-width:720px){
-  .main{ grid-template-columns: 1fr; gap:14px; padding:6px; min-height:auto; }
-  .col-left, .col-center, .col-right{ align-items:center; }
-  .card{ width:92%; }
-  canvas{ height:220px !important; }
-  .gauge{ width:200px; height:200px; }
-  .value{ font-size:28px; }
-}
-.page-wrap{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-}
+.note{text-align:center; font-size:13px; opacity:0.8; margin-top:10px;}
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #ff4d4d; color: #fff; padding: 12px 20px; border-radius: 10px; opacity: 0; pointer-events: none; transition: opacity 0.5s; font-weight:700; z-index: 1000; }
+@media (max-width:1100px){ .main{ grid-template-columns: 360px 1fr; } .col-right{ order:2; align-items:flex-start; } }
+@media (max-width:720px){ .main{ grid-template-columns: 1fr; gap:14px; padding:6px; } .col-left,.col-center,.col-right{ align-items:center; } .card{ width:92%; } canvas{ height:220px !important; } .value{ font-size:28px; } .gauge{ width:200px; height:200px; } }
+
+.page-wrap{ display:flex; flex-direction:column; align-items:center; }
 .card canvas { height: 268px !important; width: 100% !important; }
-#pressurecard{ width: 13vw; height: 8vw; }
 
 /* ERROR style when sensor missing */
 .error {
@@ -143,6 +70,44 @@ canvas{ background:var(--card); border-radius:10px; padding:8px; box-shadow:0 6p
   border: 1px solid #ff4d4d !important;
 }
 .error .value { color: #fff !important; }
+
+#weatherCond { min-width: 300px; text-align:center; }
+#weatherCond .value { font-size:28px; color:#ffeaa7; }
+
+/* Neon Gauge */
+.gauge {
+  position: relative;
+  width: 240px;
+  height: 240px;
+}
+.gauge svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.gauge circle {
+  fill: none;
+  stroke-width: 12;
+  stroke-linecap: round;
+}
+.gauge .ring-bg { stroke: rgba(0,228,255,0.1); }
+.gauge .ring-fg {
+  stroke: #00e4ff;
+  filter: drop-shadow(0 0 8px #00e4ff) drop-shadow(0 0 12px #00e4ff);
+  transition: stroke-dashoffset 0.3s;
+}
+.gauge .center {
+  position: absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  pointer-events:none;
+}
+.gauge .center .big { font-size:28px; font-weight:800; color:#bff7ff; }
+.gauge .center .small { font-size:12px; opacity:0.85; }
+
 </style>
 </head>
 <body>
@@ -152,31 +117,27 @@ canvas{ background:var(--card); border-radius:10px; padding:8px; box-shadow:0 6p
   <div class="controls">
     <button id="connectBtn" class="btn">🔌 Connect Arduino</button>
     <button id="exportBtn" class="btn" disabled>📥 Export CSV</button>
+    <button id="modeBtn" class="btn">🌙 Dark/Light</button>
     <button id="clearBtn" class="btn" disabled>🗑️ Clear Data</button>
   </div>
 </header>
-
 <main class="main" role="main">
-  <!-- LEFT: values -->
   <section class="col-left">
     <div class="card" id="tempCard">
       <h3>🌡 Temperature</h3>
       <div id="dhtTemp" class="value">-- °C</div>
       <div class="small">DHT11 sensor</div>
     </div>
-
     <div class="card" id="humCard">
       <h3>💧 Humidity</h3>
       <div id="dhtHum" class="value">-- %</div>
       <div class="small">Relative humidity</div>
     </div>
-
     <div class="card" id="altitudeCard">
       <h3>⛰ Altitude</h3>
       <div id="altitude" class="value">-- m</div>
       <div class="small">Calculated from pressure</div>
     </div>
-
     <div class="card" id="rainCard">
       <h3>🌧 Rain Status</h3>
       <div id="rainStatus" class="value">--</div>
@@ -184,27 +145,23 @@ canvas{ background:var(--card); border-radius:10px; padding:8px; box-shadow:0 6p
     </div>
   </section>
 
-  <!-- CENTER: charts -->
   <section class="col-center">
     <div class="card">
       <h3>📈 Temp, Pressure & Humidity</h3>
       <canvas id="weatherChart" height="220"></canvas>
     </div>
-
     <div class="card">
       <h3>📈 Rain Sensor</h3>
       <canvas id="rainChart" height="220"></canvas>
     </div>
   </section>
 
-  <!-- RIGHT: gauge -->
   <section class="col-right">
     <div class="card" id="pressurecard">
       <h3>🔵 Pressure</h3>
       <div id="pressure" class="value">-- hPa</div>
       <div class="small">Sea-level adjusted</div>
     </div>
-
     <div class="card" id="gaugeCard">
       <h3>🔮 Neon Pressure Gauge</h3>
       <div class="gauge-wrap">
@@ -221,10 +178,16 @@ canvas{ background:var(--card); border-radius:10px; padding:8px; box-shadow:0 6p
       </div>
       <div class="small-note">Gauge range: <strong id="gaugeRange">900 — 1100 hPa</strong></div>
     </div>
+    <div class="card" id="weatherCond">
+      <h3>☁ Weather Condition</h3>
+      <div id="condValue" class="value">--</div>
+      <div class="small">Based on sensors</div>
+    </div>
   </section>
 </main>
 
 <div class="note">Make sure Arduino Serial Monitor is closed. Works in Chrome / Edge (Web Serial API).</div>
+<div id="toast" class="toast"></div>
 </div>
 
 <script>
@@ -232,112 +195,105 @@ canvas{ background:var(--card); border-radius:10px; padding:8px; box-shadow:0 6p
 const MAX_POINTS = 60;
 const PRESS_MIN = 900;
 const PRESS_MAX = 1100;
-
-let port = null;
-let reader = null;
-let readBuffer = '';
-let running = false;
-const readings = []; // store for CSV
-let lastBMPTime = 0;
-const BMP_TIMEOUT_MS = 2000; // 2s timeout when BMP readings not valid
+let port=null, reader=null, readBuffer='', running=false;
+const readings=[];
+let lastBMPTime=0;
+const BMP_TIMEOUT_MS=2000;
 
 /* ---------- Charts ---------- */
 const weatherCtx = document.getElementById('weatherChart').getContext('2d');
 const weatherChart = new Chart(weatherCtx, {
-  type: 'line',
-  data: {
-    labels: [],
-    datasets: [
-      { label: 'Temperature (°C)', data: [], borderColor: '#00e4ff', yAxisID: 'yT', tension:0.25 },
-      { label: 'Humidity (%)', data: [], borderColor: '#ff78a6', yAxisID: 'yH', tension:0.25 },
-      { label: 'Pressure (hPa)', data: [], borderColor: '#ffd24d', yAxisID: 'yP', tension:0.25 }
-    ]
-  },
-  options: {
-    responsive:true,
-    plugins:{ legend:{display:true} },
+  type:'line',
+  data:{ labels:[], datasets:[
+    { label:'Temperature (°C)', data:[], borderColor:'#00e4ff', yAxisID:'yT', tension:0.25 },
+    { label:'Humidity (%)', data:[], borderColor:'#ff78a6', yAxisID:'yH', tension:0.25 },
+    { label:'Pressure (hPa)', data:[], borderColor:'#ffd24d', yAxisID:'yP', tension:0.25 }
+  ]},
+  options:{ responsive:true,
     scales:{
       x:{ display:false },
-      yT:{ type:'linear', position:'left', min:-5, max:50, title:{display:true,text:'°C'} },
-      yH:{ type:'linear', position:'right', min:0, max:100, grid:{drawOnChartArea:false}, title:{display:true,text:'%'} },
-      yP:{ type:'linear', position:'right', min:PRESS_MIN, max:PRESS_MAX, grid:{drawOnChartArea:false}, title:{display:true,text:'hPa'} }
+      yT:{ type:'linear', position:'left', min:-5, max:50 },
+      yH:{ type:'linear', position:'right', grid:{drawOnChartArea:false} },
+      yP:{ type:'linear', position:'right', offset:true, min:PRESS_MIN, max:PRESS_MAX, grid:{drawOnChartArea:false} }
     },
     animation:false
   }
 });
 
 const rainCtx = document.getElementById('rainChart').getContext('2d');
-const rainChart = new Chart(rainCtx, {
-  type: 'line',
-  data: { labels: [], datasets: [{ label: 'Rain Sensor', data: [], borderColor:'#7df2a6', tension:0.25 }] },
-  options: { responsive:true, scales:{ x:{display:false}, y:{min:0,max:1023} }, animation:false }
+const rainChart = new Chart(rainCtx,{
+  type:'line',
+  data:{ labels:[], datasets:[{ label:'Rain Sensor', data:[], borderColor:'#7df2a6', tension:0.25 }]},
+  options:{ responsive:true, scales:{ x:{display:false}, y:{min:0,max:1023} }, animation:false }
 });
 
 /* ---------- DOM refs ---------- */
 const connectBtn = document.getElementById('connectBtn');
 const exportBtn = document.getElementById('exportBtn');
 const clearBtn = document.getElementById('clearBtn');
-
+const modeBtn = document.getElementById('modeBtn');
 const dhtTempEl = document.getElementById('dhtTemp');
-const dhtHumEl  = document.getElementById('dhtHum');
-const pressureEl= document.getElementById('pressure');
-const altitudeEl= document.getElementById('altitude');
+const dhtHumEl = document.getElementById('dhtHum');
+const pressureEl = document.getElementById('pressure');
+const altitudeEl = document.getElementById('altitude');
 const rainStatusEl = document.getElementById('rainStatus');
-
+const condValueEl = document.getElementById('condValue');
 const tempCard = document.getElementById('tempCard');
 const humCard = document.getElementById('humCard');
 const pressureCard = document.getElementById('pressurecard');
 const altitudeCard = document.getElementById('altitudeCard');
 const rainCard = document.getElementById('rainCard');
-
 const ringFG = document.getElementById('ringFG');
 const gaugeValueEl = document.getElementById('gaugeValue');
 document.getElementById('gaugeRange').innerText = `${PRESS_MIN} — ${PRESS_MAX} hPa`;
 
 /* ---------- Helpers ---------- */
-function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+function showToast(msg){ const toast = document.getElementById('toast'); toast.innerText=msg; toast.style.opacity=1; setTimeout(()=>{toast.style.opacity=0;},2000);}
+function resolveTemperature(dhtT,bmpT){ if(dhtT!==-1)return {value:dhtT,source:'DHT11 sensor'}; if(bmpT!==-1)return {value:bmpT,source:'BMP280 fallback'}; return {value:null,source:'No temperature sensor'};}
 
-function setMissing(cardEl, valueEl) {
-  cardEl.classList.add('error');
-  valueEl.innerText = 'Sensor Missing';
+/* ---------- Error handling for missing sensors ---------- */
+function setMissing(cardEl,valueEl,sensorName){
+    cardEl.classList.add('error');
+    valueEl.innerText='Sensor Missing';
+    showToast(sensorName+' missing!');
 }
+function clearMissing(cardEl){ cardEl.classList.remove('error'); }
 
-function clearMissing(cardEl) {
-  cardEl.classList.remove('error');
-}
-
-/* push to chart supporting nulls (null creates gaps) */
-function pushToChart(chart, vals) {
+/* ---------- Chart update ---------- */
+function pushToChart(chart,vals){ 
   chart.data.labels.push('');
-  chart.data.datasets.forEach((ds, i) => {
-    const v = (i < vals.length) ? vals[i] : null;
-    ds.data.push(v === undefined ? null : v);
-  });
-  if (chart.data.labels.length > MAX_POINTS) {
-    chart.data.labels.shift();
-    chart.data.datasets.forEach(ds => ds.data.shift());
-  }
+  chart.data.datasets.forEach((ds,i)=>{ const v=(i<vals.length)?vals[i]:null; ds.data.push(v===undefined?null:v); });
+  if(chart.data.labels.length>MAX_POINTS){ chart.data.labels.shift(); chart.data.datasets.forEach(ds=>ds.data.shift()); }
   chart.update();
 }
 
 /* ---------- Gauge ---------- */
-function updateGauge(pressure) {
-  const p = clamp(pressure, PRESS_MIN, PRESS_MAX);
-  const pct = (p - PRESS_MIN) / (PRESS_MAX - PRESS_MIN);
-  const circumference = 2 * Math.PI * 40;
-  const dash = circumference * pct;
-  const offset = circumference - dash;
-  ringFG.setAttribute('stroke-dasharray', `${circumference}`);
+function updateGauge(pressure){
+  const p = clamp(pressure,PRESS_MIN,PRESS_MAX);
+  const pct = (p-PRESS_MIN)/(PRESS_MAX-PRESS_MIN);
+  const circumference = 2*Math.PI*40;
+  const dash = circumference*pct;
+  const offset = circumference-dash;
+  ringFG.setAttribute('stroke-dasharray',circumference);
   ringFG.style.strokeDashoffset = offset;
-  gaugeValueEl.innerText = `${pressure.toFixed(1)} hPa`;
+  gaugeValueEl.innerText = pressure.toFixed(1)+' hPa';
 }
-
-function freezeGauge() {
-  const circumference = 2 * Math.PI * 40;
+function freezeGauge(){
+  const circumference = 2*Math.PI*40;
   ringFG.style.strokeDashoffset = circumference;
   gaugeValueEl.innerText = '-- hPa';
 }
 
+/* ---------- Weather Condition ---------- */
+function updateCondition(temp,hum,pres,rain){
+  let cond='--';
+  if(rain===1) cond='Raining 🌧️';
+  else if(hum>80 && temp>20) cond='Humid ☁️';
+  else if(pres<1000) cond='Cloudy ☁️';
+  else cond='Clear ☀️';
+  condValueEl.innerText = cond;
+}
 /* ---------- Serial handling ---------- */
 async function connectSerial() {
   try {
@@ -348,141 +304,128 @@ async function connectSerial() {
     exportBtn.disabled = false;
     clearBtn.disabled = false;
     running = true;
-
     reader = port.readable.getReader();
     const decoder = new TextDecoder();
-
     while (running) {
       const { value, done } = await reader.read();
       if (done) break;
       if (!value) continue;
-
       readBuffer += decoder.decode(value);
       const lines = readBuffer.split(/\r?\n/);
-      readBuffer = lines.pop(); // remainder
-
+      readBuffer = lines.pop();
       for (const raw of lines) {
         const line = raw.trim();
         if (!line) continue;
         const parts = line.split(',').map(s => s.trim());
-        // Expect: dhtT,dhtH,bmpTemp,pressure,altitude,rain
         if (parts.length < 6) continue;
-
         const dhtT = parseFloat(parts[0]);
         const dhtH = parseFloat(parts[1]);
         const bmpT = parseFloat(parts[2]);
         const pres = parseFloat(parts[3]);
-        const alt  = parseFloat(parts[4]);
+        const alt = parseFloat(parts[4]);
         const rain = parseFloat(parts[5]);
+        if ([dhtT,dhtH,bmpT,pres,alt,rain].some(v=>Number.isNaN(v))) continue;
 
-        // ignore completely invalid lines
-        if ([dhtT,dhtH,bmpT,pres,alt,rain].some(v => Number.isNaN(v))) continue;
-
-        // update last BMP time if we got valid bmp numbers (not -1)
         if (pres !== -1 && alt !== -1) lastBMPTime = Date.now();
-
-        // store reading
         const ts = new Date().toISOString();
-        readings.push({ ts, dhtT, dhtH, bmpT, pres, alt, rain });
-        if (readings.length > 10000) readings.shift();
+        readings.push({ ts,dhtT,dhtH,bmpT,pres,alt,rain });
+        if(readings.length>10000) readings.shift();
 
-        /* ----- Sensor missing logic ----- */
-        // DHT Temperature
-        if (dhtT === -1) setMissing(tempCard, dhtTempEl);
-        else { clearMissing(tempCard); dhtTempEl.innerText = dhtT.toFixed(1) + ' °C'; }
+        const temp = resolveTemperature(dhtT,bmpT);
+        if(temp.value===null) setMissing(tempCard,dhtTempEl,'Temperature');
+        else { clearMissing(tempCard); dhtTempEl.innerText = temp.value.toFixed(1)+' °C'; }
 
-        // DHT Humidity
-        if (dhtH === -1) setMissing(humCard, dhtHumEl);
-        else { clearMissing(humCard); dhtHumEl.innerText = dhtH.toFixed(1) + ' %'; }
+        if(dhtH===-1) setMissing(humCard,dhtHumEl,'Humidity');
+        else { clearMissing(humCard); dhtHumEl.innerText = dhtH.toFixed(1)+' %'; }
 
-        // Altitude
-        if (alt === -1) setMissing(altitudeCard, altitudeEl);
-        else { clearMissing(altitudeCard); altitudeEl.innerText = alt.toFixed(2) + ' m'; }
+        if(alt===-1) setMissing(altitudeCard,altitudeEl,'Altitude');
+        else { clearMissing(altitudeCard); altitudeEl.innerText = alt.toFixed(2)+' m'; }
 
-        // Rain
-        if (rain === -1) setMissing(rainCard, rainStatusEl);
-        else { clearMissing(rainCard); rainStatusEl.innerText = rain == 1 ? "Raining 🌧️" : "No Rain ☀️"; }
+        if(rain===-1) setMissing(rainCard,rainStatusEl,'Rain');
+        else { clearMissing(rainCard); rainStatusEl.innerText = rain==1?"Raining 🌧️":"No Rain ☀️"; }
 
-        // BMP/Pressure handling with timeout guard
         const now = Date.now();
-        // If we got a valid reading update time (done above). If not, check timeout:
-        if (pres === -1 || alt === -1) {
-          // Might be temporarily missing; only show missing after BMP_TIMEOUT_MS without valid data
-          if (now - lastBMPTime > BMP_TIMEOUT_MS) {
-            // mark both pressure + altitude missing
-            setMissing(pressureCard, pressureEl);
-            setMissing(altitudeCard, altitudeEl);
+        if(pres===-1 || alt===-1){
+          if(now-lastBMPTime>BMP_TIMEOUT_MS){
+            setMissing(pressureCard,pressureEl,'Pressure');
+            setMissing(altitudeCard,altitudeEl,'Altitude');
             freezeGauge();
-          } else {
-            // within timeout window: keep old display (do not override)
-            // but ensure card not in error state (unless it previously was)
           }
         } else {
-          // valid bmp data: clear error and update
-          clearMissing(pressureCard);
-          clearMissing(altitudeCard);
-          pressureEl.innerText = pres.toFixed(2) + ' hPa';
+          clearMissing(pressureCard); clearMissing(altitudeCard);
+          pressureEl.innerText = pres.toFixed(2)+' hPa';
           updateGauge(pres);
         }
 
-        /* ----- Charts: push null when missing (creates gap) ----- */
-        pushToChart(weatherChart, [
-          dhtT !== -1 ? dhtT : null,
-          dhtH !== -1 ? dhtH : null,
-          pres !== -1 ? pres : null
-        ]);
-        pushToChart(rainChart, [ rain !== -1 ? rain : null ]);
+        pushToChart(weatherChart, [ temp.value, dhtH!==-1?dhtH:null, pres!==-1?pres:null ]);
+        pushToChart(rainChart, [ rain!==-1?rain:null ]);
+        updateCondition(temp.value,dhtH,pres,rain);
       }
     }
-  } catch (err) {
-    console.error('Serial error', err);
-    alert('Serial connection error: ' + err);
+  } catch(err){
+    console.error(err);
+    alert('Serial connection error: '+err);
   } finally {
-    if (reader) { try { await reader.cancel(); } catch(e) {} reader.releaseLock(); }
-    if (port) { try { await port.close(); } catch(e) {} }
-    connectBtn.innerText = '🔌 Connect Arduino';
-    connectBtn.disabled = false;
-    exportBtn.disabled = readings.length === 0;
-    clearBtn.disabled = readings.length === 0;
-    running = false;
+    if(reader){ try{await reader.cancel();}catch(e){} reader.releaseLock(); }
+    if(port){ try{await port.close();}catch(e){} }
+    connectBtn.innerText='🔌 Connect Arduino';
+    connectBtn.disabled=false;
+    exportBtn.disabled = readings.length===0;
+    clearBtn.disabled = readings.length===0;
+    running=false;
   }
 }
 
 /* ---------- UI Controls ---------- */
-connectBtn.addEventListener('click', () => {
-  if (!('serial' in navigator)) {
-    alert('Web Serial API not supported. Use latest Chrome/Edge.');
-    return;
-  }
+connectBtn.addEventListener('click',()=>{
+  if(!('serial' in navigator)){ alert('Web Serial API not supported'); return; }
   connectSerial();
 });
 
-exportBtn.addEventListener('click', () => {
-  if (readings.length === 0) { alert('No data to export.'); return; }
-  const rows = [['timestamp','temp_C','humidity_pct','bmpTemp_C','pressure_hPa','altitude_m','rain']];
-  for (const r of readings) rows.push([r.ts, r.dhtT, r.dhtH, r.bmpT, r.pres, r.alt, r.rain]);
-  const blob = new Blob([rows.map(r => r.join(',')).join('\n')], { type: 'text/csv' });
+exportBtn.addEventListener('click',()=>{
+  if(readings.length===0){ alert('No data to export'); return; }
+  const rows=[['timestamp','temp_C','humidity_pct','bmpTemp_C','pressure_hPa','altitude_m','rain']];
+  for(const r of readings) rows.push([r.ts,r.dhtT,r.dhtH,r.bmpT,r.pres,r.alt,r.rain]);
+  const blob = new Blob([rows.map(r=>r.join(',')).join('\n')], {type:'text/csv'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `weather_readings_${new Date().toISOString().replace(/[:.]/g,'-')}.csv`;
+  a.href=url;
+  a.download = `weather_readings_${new Date().toISOString().replace(/[:.]/g,'-')}.csv`;
   document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 });
 
-clearBtn.addEventListener('click', () => {
-  if (!confirm('Clear stored readings?')) return;
-  readings.length = 0;
-  weatherChart.data.labels = []; weatherChart.data.datasets.forEach(ds => ds.data = []); weatherChart.update();
-  rainChart.data.labels = []; rainChart.data.datasets.forEach(ds => ds.data = []); rainChart.update();
-  dhtTempEl.innerText = '-- °C'; dhtHumEl.innerText = '-- %';
-  pressureEl.innerText = '-- hPa'; altitudeEl.innerText = '-- m';
-  rainStatusEl.innerText = '--'; gaugeValueEl.innerText = '-- hPa';
-  exportBtn.disabled = true; clearBtn.disabled = true;
+clearBtn.addEventListener('click',()=>{
+  if(!confirm('Clear stored readings?')) return;
+  readings.length=0;
+  weatherChart.data.labels=[]; weatherChart.data.datasets.forEach(ds=>ds.data=[]); weatherChart.update();
+  rainChart.data.labels=[]; rainChart.data.datasets.forEach(ds=>ds.data=[]); rainChart.update();
+  dhtTempEl.innerText='-- °C'; dhtHumEl.innerText='-- %'; pressureEl.innerText='-- hPa';
+  altitudeEl.innerText='-- m'; rainStatusEl.innerText='--'; gaugeValueEl.innerText='-- hPa'; condValueEl.innerText='--';
+  exportBtn.disabled=true; clearBtn.disabled=true;
 });
 
-/* ---------- Initialize ring ---------- */
+/* ---------- Dark/Light Mode ---------- */
+modeBtn.addEventListener('click',()=>{
+  document.body.classList.toggle('light-mode');
+  if(document.body.classList.contains('light-mode')){
+    document.documentElement.style.setProperty('--bg1','#f1f1f1');
+    document.documentElement.style.setProperty('--bg2','#ddd');
+    document.documentElement.style.setProperty('--card','#fff');
+    document.documentElement.style.setProperty('--accent','#0077ff');
+    document.documentElement.style.setProperty('--muted','rgba(0,0,0,0.85)');
+  } else {
+    document.documentElement.style.setProperty('--bg1','#04000ceb');
+    document.documentElement.style.setProperty('--bg2','#1a0437');
+    document.documentElement.style.setProperty('--card','#0a1a24');
+    document.documentElement.style.setProperty('--accent','#00e4ff');
+    document.documentElement.style.setProperty('--muted','rgba(255,255,255,0.75)');
+  }
+});
+
+/* ---------- Initialize neon gauge ---------- */
 (function initRing(){
-  const circumference = 2 * Math.PI * 40;
-  ringFG.setAttribute('stroke-dasharray', `${circumference}`);
+  const circumference = 2*Math.PI*40;
+  ringFG.setAttribute('stroke-dasharray',circumference);
   ringFG.style.strokeDashoffset = circumference;
 })();
 </script>
