@@ -65,6 +65,12 @@ button{
   font-weight:900;
 }
 
+/* SENSOR ERROR */
+.card.sensor-error{
+  background:linear-gradient(145deg,#3a0b0b,#5c1111);
+  box-shadow:0 0 35px #ff3b3baa;
+}
+
 /* LEFT */
 .left{display:flex;flex-direction:column;gap:22px}
 .left .card{min-height:110px}
@@ -78,39 +84,69 @@ canvas{width:100%!important;height:94%!important}
 
 /* AQI COLORS */
 .aqi-good{color:#7dff9a}
-.aqi-poor{color:#ffd166}
+.aqi-moderate{color:#ffd166}
 .aqi-bad{color:#ff4d6d}
+.aqi-verybad{color:#ff1a1a}
 
-/* ===== OLD MODERN NEON PRESSURE RING ===== */
+/* ========================= */
+/* 🔮 NEON PRESSURE GAUGE */
+/* ========================= */
 .gauge-wrap{
   position:relative;
-  width:240px;
-  height:240px;
+  width:260px;
+  height:260px;
   margin:auto;
 }
+
 .gauge svg{
   width:100%;
   height:100%;
   transform:rotate(-90deg);
 }
+
+/* Glass background */
+.gauge-glass{
+  position:absolute;
+  inset:22px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(14px);
+  box-shadow:
+    inset 0 0 25px rgba(255,255,255,0.12),
+    inset 0 0 60px rgba(0,228,255,0.12);
+}
+
+/* background ring */
 .ring-bg{
   fill:none;
-  stroke:#0b3c4a;
-  stroke-width:20;
+  stroke:#062b36;
+  stroke-width:26;
+  opacity:0.55;
 }
+
+/* animated neon ring */
 .ring-fg{
   fill:none;
-  stroke:#00e4ff;
-  stroke-width:20;
+  stroke:url(#pressureGradient);
+  stroke-width:26;
   stroke-linecap:round;
   stroke-dasharray:565;
   stroke-dashoffset:565;
-  transition:stroke-dashoffset .6s ease;
+  transition:
+    stroke-dashoffset .8s cubic-bezier(.4,0,.2,1),
+    filter .6s;
   filter:
-    drop-shadow(0 0 8px #00e4ff)
-    drop-shadow(0 0 18px #00e4ff)
-    drop-shadow(0 0 35px #00e4ff);
+    drop-shadow(0 0 18px currentColor)
+    drop-shadow(0 0 40px currentColor);
+  animation:pulse 3s infinite ease-in-out;
 }
+
+@keyframes pulse{
+  0%,100%{filter:drop-shadow(0 0 20px currentColor)}
+  50%{filter:drop-shadow(0 0 55px currentColor)}
+}
+
+/* center text */
 .gauge-center{
   position:absolute;
   inset:0;
@@ -118,12 +154,26 @@ canvas{width:100%!important;height:94%!important}
   flex-direction:column;
   align-items:center;
   justify-content:center;
+  text-align:center;
 }
+
 .gauge-center .big{
-  font-size:28px;
+  font-size:34px;
   font-weight:900;
+  background:linear-gradient(180deg,#ffffff,#9befff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-shadow:
+    0 0 12px currentColor,
+    0 0 25px currentColor;
 }
-.gauge-center small{opacity:.8}
+
+.gauge-center .sub{
+  font-size:13px;
+  font-weight:700;
+  opacity:.85;
+  letter-spacing:1px;
+}
 
 /* WEATHER */
 .weather{
@@ -162,10 +212,10 @@ canvas{width:100%!important;height:94%!important}
 
   <!-- LEFT -->
   <div class="left">
-    <div class="card"><h3>🌡️ Temperature</h3><div class="value" id="temp">-- °C</div></div>
-    <div class="card"><h3>💧 Humidity</h3><div class="value" id="hum">-- %</div></div>
-    <div class="card"><h3>🗻 Altitude</h3><div class="value" id="alt">-- m</div></div>
-    <div class="card"><h3>🌧 Rain</h3><div class="value" id="rain">--</div></div>
+    <div class="card" id="tempCard"><h3>🌡️ Temperature</h3><div class="value" id="temp">-- °C</div></div>
+    <div class="card" id="humCard"><h3>💧 Humidity</h3><div class="value" id="hum">-- %</div></div>
+    <div class="card" id="altCard"><h3>🗻 Altitude</h3><div class="value" id="alt">-- m</div></div>
+    <div class="card" id="rainCard"><h3>🌧️ Rain</h3><div class="value" id="rain">--</div></div>
   </div>
 
   <!-- CENTER -->
@@ -177,28 +227,39 @@ canvas{width:100%!important;height:94%!important}
   <!-- RIGHT -->
   <div class="right">
 
-    <div class="card">
+    <div class="card" id="aqiCard">
       <h3>🫁 AQI</h3>
       <div class="value" id="aqiVal">--</div>
       <div id="aqiText">--</div>
     </div>
 
-    <div class="card">
+    <div class="card" id="pressCard">
       <h3>🔮 Atmospheric Pressure</h3>
+
       <div class="gauge-wrap gauge">
         <svg viewBox="0 0 200 200">
+          <defs>
+            <linearGradient id="pressureGradient" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="200" y2="200">
+              <stop offset="0%" stop-color="#4da6ff"/>
+              <stop offset="50%" stop-color="#00e4ff"/>
+              <stop offset="100%" stop-color="#b44cff"/>
+            </linearGradient>
+          </defs>
           <circle cx="100" cy="100" r="90" class="ring-bg"/>
           <circle cx="100" cy="100" r="90" class="ring-fg" id="ring"/>
         </svg>
+
+        <div class="gauge-glass"></div>
+
         <div class="gauge-center">
           <div class="big" id="press">-- hPa</div>
-          <small>Neon Pressure Gauge</small>
+          <div class="sub">Atmospheric Pressure</div>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <h3>🌦 Weather Condition ⛅</h3>
+      <h3>🌦️ Weather Condition</h3>
       <div class="weather" id="weather">--</div>
     </div>
 
@@ -210,7 +271,11 @@ canvas{width:100%!important;height:94%!important}
 <script>
 let chart;
 const ctx=document.getElementById("chart");
+const rainEl=document.getElementById("rain");
+const rainCard=document.getElementById("rainCard");
+let lastPressure=null;
 
+/* CHART */
 chart=new Chart(ctx,{
   type:"line",
   data:{labels:[],datasets:[
@@ -219,7 +284,12 @@ chart=new Chart(ctx,{
     {label:"Pressure",borderColor:"#ffd166",data:[]},
     {label:"AQI",borderColor:"#7df2a6",data:[]}
   ]},
-  options:{responsive:true,maintainAspectRatio:false}
+  options:{
+    responsive:true,
+    maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:"#aaa"}}},
+    scales:{x:{ticks:{color:"#666"}},y:{ticks:{color:"#666"}}}
+  }
 });
 
 function toast(msg){
@@ -229,50 +299,79 @@ function toast(msg){
   setTimeout(()=>t.style.display="none",3000);
 }
 
-/* ===== PARSE YOUR ARDUINO FORMAT ===== */
-function parseLine(line){
-  const p=line.trim().split(",");
-  if(p.length<8) return;
-
-  let dhtT=parseFloat(p[0]);
-  let dhtH=parseFloat(p[1]);
-  let bmpT=parseFloat(p[2]);
-  let pressure=parseFloat(p[3]);
-  let altitude=parseFloat(p[4]);
-  let rainStatus=p[5];
-  let aqi=parseInt(p[7]);
-
-  let tempVal=dhtT!==-1?dhtT:bmpT;
-  if(dhtT===-1) toast("⚠ DHT11 failed → BMP280 temperature used");
-
-  update(tempVal,dhtH,pressure,aqi,rainStatus,altitude);
+function setSensor(cardId, elId, val, unit=""){
+  const card=document.getElementById(cardId);
+  const el=document.getElementById(elId);
+  if(val===-1||val===null||isNaN(val)){
+    el.innerText="Sensor Missing";
+    card.classList.add("sensor-error");
+    return null;
+  }
+  el.innerText=val+unit;
+  card.classList.remove("sensor-error");
+  return val;
 }
 
-function update(t,h,p,aqi,r,a){
-  temp.innerText=t.toFixed(1)+" °C";
-  hum.innerText=h===-1?"Sensor Missing":h.toFixed(1)+" %";
-  alt.innerText=a.toFixed(1)+" m";
-  rain.innerText=r;
-  press.innerText=p.toFixed(1)+" hPa";
+/* PARSE DATA LINE */
+function parseLine(line){
+  const p=line.trim().split(",");
+  if(p.length<8)return;
+  updateUI(+p[0],+p[1],+p[2],+p[3],+p[4],p[5],+p[7]);
+}
 
-  aqiVal.innerText=aqi;
-  if(aqi<50){aqiVal.className="value aqi-good";aqiText.innerText="Good"}
-  else if(aqi<100){aqiVal.className="value aqi-poor";aqiText.innerText="Moderate"}
-  else{aqiVal.className="value aqi-bad";aqiText.innerText="Hazardous"}
+/* UPDATE UI */
+function updateUI(dhtT,dhtH,bmpT,p,alt,rainStatus,aqi){
+  const tempVal=setSensor("tempCard","temp",dhtT," °C");
+  const humVal=setSensor("humCard","hum",dhtH," %");
+  setSensor("altCard","alt",alt," m");
 
-  weather.innerText=
-    aqi<50?"☀️ Clear":
-    aqi<100?"🌤 Moderate":"☠️ Hazardous";
+  if(!rainStatus||rainStatus==="-1"){
+    rainEl.innerText="Sensor Missing";
+    rainCard.classList.add("sensor-error");
+  }else{
+    rainEl.innerText=rainStatus;
+    rainCard.classList.remove("sensor-error");
+  }
 
-  const pct=Math.min(1,Math.max(0,(p-900)/200));
-  ring.style.strokeDashoffset=565*(1-pct);
+  const presVal=setSensor("pressCard","press",p," hPa");
+  if(presVal!==null){
+    const percent=Math.min(1,Math.max(0,(presVal-900)/200));
+    ring.style.strokeDashoffset=565*(1-percent);
+    if(lastPressure!==null){
+      ring.style.color = presVal>lastPressure ? "#b44cff" : "#4da6ff";
+    }
+    lastPressure=presVal;
+  }
+
+  /* AQI */
+  const aqiVal=setSensor("aqiCard","aqiVal",aqi,"");
+  const aqiText=document.getElementById("aqiText");
+  if(aqiVal!==null){
+    if(aqiVal<=50){ aqiText.innerText="Good"; aqiText.className="aqi-good"; }
+    else if(aqiVal<=100){ aqiText.innerText="Moderate"; aqiText.className="aqi-moderate"; }
+    else if(aqiVal<=200){ aqiText.innerText="Bad"; aqiText.className="aqi-bad"; }
+    else{ aqiText.innerText="Very Bad"; aqiText.className="aqi-verybad"; }
+  }
+
+  /* WEATHER CONDITION LOGIC */
+  let weatherStr = "";
+  const rainLower = (rainStatus || "").trim().toLowerCase();
+  if(rainLower === "raining 🌧️") weatherStr = "🌧️ Rainy";
+  else if(humVal >= 80 && tempVal >= 25) weatherStr = "🌦️ Humid/Showers";
+  else if(humVal >= 70) weatherStr = "☁️ Cloudy";
+  else if(tempVal >= 30) weatherStr = "🔥 Hot";
+  else if(tempVal <= 10) weatherStr = "❄️ Cold";
+  else if(aqiVal >= 200) weatherStr = "☠️ Hazardous";
+  else if(aqiVal >= 100) weatherStr = "🌫️ Polluted";
+  else weatherStr = "☀️ Clear";
+
+  document.getElementById("weather").innerText = weatherStr;
 
   chart.data.labels.push("");
-  chart.data.datasets[0].data.push(t);
-  chart.data.datasets[1].data.push(h);
-  chart.data.datasets[2].data.push(p);
-  chart.data.datasets[3].data.push(aqi);
-
+  chart.data.datasets[0].data.push(tempVal);
+  chart.data.datasets[1].data.push(humVal);
+  chart.data.datasets[2].data.push(presVal);
+  chart.data.datasets[3].data.push(aqiVal);
   if(chart.data.labels.length>40){
     chart.data.labels.shift();
     chart.data.datasets.forEach(d=>d.data.shift());
@@ -280,62 +379,106 @@ function update(t,h,p,aqi,r,a){
   chart.update();
 }
 
-function clearData(){
-  chart.data.labels=[];
-  chart.data.datasets.forEach(d=>d.data=[]);
-  chart.update();
-
-  temp.innerText="-- °C";
-  hum.innerText="-- %";
-  alt.innerText="-- m";
-  rain.innerText="--";
-  press.innerText="-- hPa";
-  aqiVal.innerText="--";
-  aqiText.innerText="--";
-  weather.innerText="--";
-  ring.style.strokeDashoffset=565;
-
-  toast("🗑 Data cleared");
+/* CSV EXPORT */
+function exportCSV(){
+  const headers = ["Temp (°C)","Humidity (%)","Pressure (hPa)","AQI"];
+  let csv = headers.join(",") + "\n";
+  const len = chart.data.labels.length;
+  for(let i=0;i<len;i++){
+    const row=[
+      chart.data.datasets[0].data[i]??"",
+      chart.data.datasets[1].data[i]??"",
+      chart.data.datasets[2].data[i]??"",
+      chart.data.datasets[3].data[i]??""
+    ];
+    csv += row.join(",") + "\n";
+  }
+  const blob = new Blob([csv],{type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "weather_data.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+  toast("🗃️ CSV exported");
 }
 
-async function connect(){
-  if(!("serial" in navigator)){toast("Web Serial not supported");return;}
-  const port=await navigator.serial.requestPort();
-  await port.open({baudRate:9600});
-  toast("Arduino connected ✅");
+/* SERIAL + PHYSICAL AUTO-RECONNECT */
+let port, reader, keepReading=false;
 
-  const decoder=new TextDecoderStream();
-  port.readable.pipeTo(decoder.writable);
-  const reader=decoder.readable.getReader();
-  let buf="";
-  while(true){
-    const {value,done}=await reader.read();
-    if(done)break;
-    buf+=value;
-    let lines=buf.split("\n");
-    buf=lines.pop();
-    lines.forEach(parseLine);
+async function connect(){
+  try{
+    port = await navigator.serial.requestPort();
+    await openPort();
+  }catch(err){
+    toast("⚠️ Connection Failed");
+    console.error(err);
   }
 }
 
+async function openPort(){
+  try{
+    await port.open({baudRate:9600});
+    toast("✅ Arduino Connected");
+    keepReading=true;
+    readLoop();
+  }catch(err){
+    console.error(err);
+    toast("⚠️ Failed to open port, retrying...");
+    setTimeout(openPort,3000);
+  }
+}
+
+async function readLoop(){
+  try{
+    const decoder=new TextDecoderStream();
+    port.readable.pipeTo(decoder.writable);
+    reader = decoder.readable.getReader();
+    let buffer="";
+    while(keepReading){
+      const {value,done}=await reader.read();
+      if(done) break;
+      buffer+=value;
+      const lines=buffer.split("\n");
+      buffer=lines.pop();
+      lines.forEach(parseLine);
+    }
+  }catch(err){
+    console.error("Serial disconnected", err);
+    toast("⚠️ Arduino disconnected");
+    keepReading=false;
+  }
+}
+
+/* Detect physical connect/disconnect */
+navigator.serial.addEventListener('connect', e=>{
+  toast("🔌 Arduino physically connected");
+  if(!port) port = e.target;
+  if(port && !keepReading) openPort();
+});
+
+navigator.serial.addEventListener('disconnect', e=>{
+  toast("❌ Arduino physically disconnected");
+  if(e.target===port){
+    keepReading=false;
+    port=null;
+  }
+});
+
+/* SIMULATION & UTILS */
 function simulate(){
-  parseLine("25,60,26,1015,35,No Rain ☀️,800,42");
+  const temp = Math.floor(Math.random()*35) + 5;       // 5°C to 40°C
+  const hum = Math.floor(Math.random()*60) + 30;       // 30% to 90%
+  const pres = Math.floor(Math.random()*120) + 950;    // 950 to 1070 hPa
+  const alt = Math.floor(Math.random()*200);           // 0 to 200 m
+  const rain = Math.random() < 0.3 ? "Raining" : "No Rain"; // 30% chance rain
+  const aqi = Math.floor(Math.random()*300);           // 0 to 300 AQI
+  parseLine(`${temp},${hum},${temp},${pres},${alt},${rain},${aqi},${aqi}`);
 }
 
-function exportCSV(){
-  let csv="Temp,Hum,Pressure,AQI\n";
-  chart.data.datasets[0].data.forEach((_,i)=>{
-    csv+=chart.data.datasets.map(d=>d.data[i]).join(",")+"\n";
-  });
-  let a=document.createElement("a");
-  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
-  a.download="weather.csv";
-  a.click();
-}
-
-function toggleMode(){
-  document.body.classList.toggle("light");
-}
+function clearData(){chart.data.labels=[];chart.data.datasets.forEach(d=>d.data=[]);chart.update()}
+function toggleMode(){document.body.classList.toggle("light")}
 </script>
+
 </body>
 </html>
